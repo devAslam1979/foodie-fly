@@ -1,3 +1,4 @@
+import { useAuth0 } from "@auth0/auth0-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -9,9 +10,13 @@ const navigation = [
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-
+  const { loginWithRedirect, isAuthenticated, user, logout } = useAuth0();
   const toggleMenu = () => {
     setIsOpen(!isOpen);
+  };
+
+  const handleLogin = async () => {
+    loginWithRedirect();
   };
 
   return (
@@ -38,14 +43,26 @@ const Navbar = () => {
         </div>
 
         {/* Call to Action Button */}
-        <div className="hidden md:block">
-          <Link
-            to="/order"
-            className="bg-red-500 text-white px-6 py-2 rounded-lg shadow-lg hover:bg-red-600 transition"
-          >
-            Order Now
-          </Link>
-        </div>
+        {isAuthenticated ? (
+          <div className="flex items-center gap-5">
+            <span>{user?.name}</span>
+            <button
+              onClick={() => logout()}
+              className="bg-red-500 text-white px-6 py-2 rounded-lg shadow-lg hover:bg-red-600 transition"
+            >
+              Logout
+            </button>
+          </div>
+        ) : (
+          <div className="hidden md:block">
+            <button
+              onClick={handleLogin}
+              className="bg-red-500 text-white px-6 py-2 rounded-lg shadow-lg hover:bg-red-600 transition"
+            >
+              Login
+            </button>
+          </div>
+        )}
 
         {/* Hamburger Menu */}
         <div className="md:hidden">
@@ -79,12 +96,12 @@ const Navbar = () => {
             {link.name}
           </Link>
         ))}
-        <Link
-          to="/order"
+        <button
+          onClick={handleLogin}
           className="block py-2 px-4 text-red-500 hover:bg-gray-100"
         >
-          Order Now
-        </Link>
+          Login
+        </button>
       </div>
     </nav>
   );
